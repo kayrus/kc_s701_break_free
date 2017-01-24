@@ -10,7 +10,7 @@
 MODULE_AUTHOR("kayrus");
 MODULE_DESCRIPTION("Disable custom Kyocera hooks");
 MODULE_VERSION("1.0");
-MODULE_LICENSE("GPL");
+MODULE_LICENSE("GPLv2");
 
 int (*_kc_bootmode_setup)(char *buf) = NULL;
 int (*_kc_kbfm_setup)(char *buf) = NULL;
