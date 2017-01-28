@@ -13,7 +13,7 @@ if [ ! -f ${IMG} ]; then
 fi
 
 if [ ! -b ${DEST} ]; then
-  echo "Destination device is not available: ${IMG}"
+  echo "Destination device is not available: ${DEST}"
   exit 1
 fi
 
