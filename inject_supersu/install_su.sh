@@ -13,6 +13,16 @@ SELINUX="-sel"
 # uncomment when you don't need selinux
 # SELINUX=""
 
+if [ ! -f "${SUPERSU_ZIP}" ]; then
+  echo "Please download SuperSU ZIP: ${SUPERSU_ZIP}"
+  exit 1
+fi
+
+if [ ! -f "${BUSYBOX_ZIP}" ]; then
+  echo "Please download Busybox ZIP: ${BUSYBOX_ZIP}"
+  exit 1
+fi
+
 mkdir -p ${PREFIX}
 cp -p ${SRC} ${DST}
 mount -oro ${DST} ${PREFIX}
@@ -103,6 +113,6 @@ secopy ${DEFAULT_OWNER} 0644 ${DEFAULT_SECONTEXT_SOURCE} platform.xml ${PREFIX}/
 
 echo 3 > /proc/sys/vm/drop_caches
 umount ${PREFIX}
-tune2fs -C 0 -M '' 19-system-root.img
+tune2fs -C 0 -M '' ${DST}
 
 echo "SuperSU was successfully injected into ${DST}"
