@@ -40,7 +40,9 @@ mount ${DST} ${PREFIX}
 setprop() {
   chmod $2 $4
   chown $1 $4
-  chcon -h --reference="$3" $4
+  if [ "${SELINUX}" != "" ]; then
+    chcon -h --reference="$3" $4
+  fi
 }
 
 secopy() {
@@ -89,13 +91,15 @@ su_unpack ${DEFAULT_OWNER} 0755 ${DEFAULT_SECONTEXT_SOURCE} ${ARCH}/supolicy ${P
 su_unpack ${DEFAULT_OWNER} 0644 ${DEFAULT_SECONTEXT_SOURCE} ${ARCH}/libsupol.so ${PREFIX}/lib/libsupol.so
 cp -a ${PREFIX}/bin/mksh ${PREFIX}/xbin/sugote-mksh
 chown ${DEFAULT_OWNER} ${PREFIX}/xbin/sugote-mksh
-bb_unpack ${DEFAULT_OWNER} 0755 ${DEFAULT_SECONTEXT_SOURCE} busybox-sel.xz ${PREFIX}/xbin/busybox
+bb_unpack ${DEFAULT_OWNER} 0755 ${DEFAULT_SECONTEXT_SOURCE} busybox${SELINUX}.xz ${PREFIX}/xbin/busybox
 bb_unpack ${DEFAULT_OWNER} 0755 ${DEFAULT_SECONTEXT_SOURCE} ssl_helper ${PREFIX}/xbin/ssl_helper
 
-for i in `cat busybox.list`; do
+for i in `cat busybox${SELINUX}.list`; do
   # "su" symlink is excluded from busybox list
   ln -s busybox ${PREFIX}/xbin/${i}
-  chcon -h --reference=${DEFAULT_SECONTEXT_SOURCE} ${PREFIX}/xbin/${i}
+  if [ "${SELINUX}" != "" ]; then
+    chcon -h --reference=${DEFAULT_SECONTEXT_SOURCE} ${PREFIX}/xbin/${i}
+  fi
   chown -L 0.2000 ${PREFIX}/xbin/${i}
 done
 

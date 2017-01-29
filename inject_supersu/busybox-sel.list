@@ -28,6 +28,7 @@ cat
 catv
 chat
 chattr
+chcon
 chgrp
 chmod
 chown
@@ -107,7 +108,9 @@ ftpd
 ftpget
 ftpput
 fuser
+getenforce
 getopt
+getsebool
 getty
 grep
 groups
@@ -161,6 +164,7 @@ linux32
 linux64
 linuxrc
 ln
+load_policy
 loadfont
 loadkmap
 logger
@@ -186,6 +190,7 @@ lzopcat
 makedevs
 makemime
 man
+matchpathcon
 md5sum
 mdev
 mesg
@@ -258,6 +263,7 @@ remove-shell
 renice
 reset
 resize
+restorecon
 rev
 rfkill
 rm
@@ -268,6 +274,7 @@ rpm
 rpm2cpio
 rtcwake
 run-parts
+runcon
 runlevel
 runsv
 runsvdir
@@ -275,13 +282,18 @@ rx
 script
 scriptreplay
 sed
+selinuxenabled
 sendmail
 seq
+sestatus
 setarch
 setconsole
+setenforce
+setfiles
 setfont
 setkeycodes
 setlogcons
+setsebool
 setserial
 setsid
 setuidgid
