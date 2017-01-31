@@ -100,7 +100,7 @@ for i in `cat busybox${SELINUX}.list`; do
   if [ "${SELINUX}" != "" ]; then
     chcon -h --reference=${DEFAULT_SECONTEXT_SOURCE} ${PREFIX}/xbin/${i}
   fi
-  chown -L 0.2000 ${PREFIX}/xbin/${i}
+  chown -h 0.2000 ${PREFIX}/xbin/${i}
 done
 
 etc="${PREFIX}/etc"
