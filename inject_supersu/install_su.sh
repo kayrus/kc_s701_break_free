@@ -1,7 +1,7 @@
 #!/bin/sh -e
 
-SRC=19-system.img
-DST=19-system-root.img
+SRC=16-system.img
+DST=16-system-root.img
 PREFIX=/system
 # http://www.supersu.com/download
 # https://s3-us-west-2.amazonaws.com/supersu/download/zip/SuperSU-v2.79-201612051815.zip
@@ -11,7 +11,7 @@ BUSYBOX_ZIP="Busybox-1.26.2-YDS-ARM.zip"
 ARCH=armv7
 SELINUX="-sel"
 # uncomment when you don't need selinux
-# SELINUX=""
+SELINUX=""
 
 if [ ! -f "${SUPERSU_ZIP}" ]; then
   echo "Please download SuperSU ZIP: ${SUPERSU_ZIP}"
@@ -38,8 +38,8 @@ mount ${DST} ${PREFIX}
 
 # file_owner file_mode_bits selinux_context_reference_file destination
 setprop() {
-  chmod $2 $4
   chown $1 $4
+  chmod $2 $4
   if [ "${SELINUX}" != "" ]; then
     chcon -h --reference="$3" $4
   fi
@@ -73,18 +73,26 @@ DEFAULT_OWNER="root.root"
 # Scripts, modules and executables to disable Kyocera kernel security and set phone into download mode
 secopy ${DEFAULT_OWNER} 0755 ${DEFAULT_SECONTEXT_SOURCE} insmod_as_wlan ${PREFIX}/xbin/insmod_as_wlan
 secopy ${DEFAULT_OWNER} 0755 ${DEFAULT_SECONTEXT_SOURCE} disable-security.sh ${PREFIX}/xbin/disable-security.sh
-secopy ${DEFAULT_OWNER} 0755 ${DEFAULT_SECONTEXT_SOURCE} dload-mode.sh ${PREFIX}/xbin/dload-mode.sh
+secopy ${DEFAULT_OWNER} 0755 ${DEFAULT_SECONTEXT_SOURCE} read-write.sh ${PREFIX}/xbin/read-write.sh
 secopy ${DEFAULT_OWNER} 0644 ${DEFAULT_SECONTEXT_SOURCE} disable_kc_security.ko ${PREFIX}/lib/modules/disable_kc_security.ko
-secopy ${DEFAULT_OWNER} 0644 ${DEFAULT_SECONTEXT_SOURCE} dload_mode.ko ${PREFIX}/lib/modules/dload_mode.ko
+secopy ${DEFAULT_OWNER} 0644 ${DEFAULT_SECONTEXT_SOURCE} mmc_protect.ko ${PREFIX}/lib/modules/mmc_protect.ko
 
 # disable "Inappropriate application may have been installed" infobar on Kyocera devices.
 chmod 0000 ${PREFIX}/vendor/bin/akscd
 
 secopy ${DEFAULT_OWNER} 0755 ${DEFAULT_SECONTEXT_SOURCE} install-recovery.sh ${PREFIX}/etc/install-recovery.sh
-su_unpack ${DEFAULT_OWNER} 0755 ${DEFAULT_SECONTEXT_SOURCE} ${ARCH}/su ${PREFIX}/xbin/su
+if [ "${SELINUX}" != "" ]; then
+  su_unpack ${DEFAULT_OWNER} 0755 ${DEFAULT_SECONTEXT_SOURCE} ${ARCH}/su ${PREFIX}/xbin/su
+else
+  su_unpack ${DEFAULT_OWNER} 6755 ${DEFAULT_SECONTEXT_SOURCE} ${ARCH}/su ${PREFIX}/xbin/su
+fi
 mkdir -p ${PREFIX}/bin/.ext
 setprop ${DEFAULT_OWNER} 0755 ${DEFAULT_SECONTEXT_SOURCE} ${PREFIX}/bin/.ext
-su_unpack ${DEFAULT_OWNER} 0755 ${DEFAULT_SECONTEXT_SOURCE} ${ARCH}/su ${PREFIX}/bin/.ext/.su
+if [ "${SELINUX}" != "" ]; then
+  su_unpack ${DEFAULT_OWNER} 0755 ${DEFAULT_SECONTEXT_SOURCE} ${ARCH}/su ${PREFIX}/bin/.ext/.su
+else
+  su_unpack ${DEFAULT_OWNER} 6755 ${DEFAULT_SECONTEXT_SOURCE} ${ARCH}/su ${PREFIX}/bin/.ext/.su
+fi
 su_unpack ${DEFAULT_OWNER} 0755 ${DEFAULT_SECONTEXT_SOURCE} ${ARCH}/su ${PREFIX}/xbin/daemonsu
 su_unpack ${DEFAULT_OWNER} 0755 ${SUGOTE_SECONTEXT_SOURCE} ${ARCH}/su ${PREFIX}/xbin/sugote
 su_unpack ${DEFAULT_OWNER} 0755 ${DEFAULT_SECONTEXT_SOURCE} ${ARCH}/supolicy ${PREFIX}/xbin/supolicy
@@ -113,7 +121,9 @@ secopy ${DEFAULT_OWNER} 0644 ${DEFAULT_SECONTEXT_SOURCE} resolv.conf ${etc}/reso
 su_unpack ${DEFAULT_OWNER} 0644 ${DEFAULT_SECONTEXT_SOURCE} common/Superuser.apk ${PREFIX}/app/Superuser.apk
 
 # This fix allows apps to write to sdcard
-secopy ${DEFAULT_OWNER} 0644 ${DEFAULT_SECONTEXT_SOURCE} platform.xml ${PREFIX}/etc/permissions/platform.xml
+if [ "${SELINUX}" != "" ]; then
+  secopy ${DEFAULT_OWNER} 0644 ${DEFAULT_SECONTEXT_SOURCE} platform.xml ${PREFIX}/etc/permissions/platform.xml
+fi
 
 echo 3 > /proc/sys/vm/drop_caches
 umount ${PREFIX}

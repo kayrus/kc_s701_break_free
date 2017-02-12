@@ -6,10 +6,9 @@ EXTRA_CFLAGS += -D__KERNEL__ -DKERNEL -DCONFIG_KEXEC -march=armv7-a -mtune=corte
 #export PATH=~/android/prebuilts/gcc/linux-x86/arm/arm-eabi-4.8/bin:$PATH
 
 ARCH		= arm
-KERNEL ?= ~/all-kernels/msm8226
+KERNEL ?= ~/all-kernels/msm8974
 CONFIG = msm8226_defconfig
 CROSS_COMPILE ?= ~/android/prebuilts/gcc/linux-x86/arm/arm-eabi-4.8/bin/arm-eabi-
-
 LD = $(CROSS_COMPILE)ld
 MDIR ?= $(PWD)
 
@@ -21,7 +20,7 @@ MODULE_NAME = wlan
 obj-m += $(MODULE_NAME).o
 module-objs := $(MODULE_NAME).o
 
-all: module push
+all: module
 
 module:
 	ARCH=$(ARCH) LD=$(LD) CROSS_COMPILE=$(CROSS_COMPILE) make -C $(KERNEL)/ M=$(MDIR) modules

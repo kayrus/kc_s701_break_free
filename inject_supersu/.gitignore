@@ -1,5 +1,5 @@
-19-system.img
-19-system-root.img
+*-system.img
+*-system-root.img
 addusergroup.sh
 Busybox-1.26.2-YDS-ARM.zip
 SuperSU-v2.79-201612051815.zip

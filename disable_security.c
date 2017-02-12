@@ -1,7 +1,8 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <fcntl.h>
-#include <sys/capability.h>
+#include <errno.h>
+#include <linux/capability.h>
 #include <sys/stat.h>
 #include <sys/prctl.h>
 
@@ -47,12 +48,12 @@ oops:
 
 static int set_cap() {
   struct __user_cap_header_struct capheader;
-  struct __user_cap_data_struct capdata[2];
+  struct __user_cap_data_struct capdata;
   int id=1000;
 
   memset(&capheader, 0, sizeof(capheader));
   memset(&capdata, 0, sizeof(capdata));
-  capheader.version = _LINUX_CAPABILITY_VERSION_3;
+  capheader.version = _LINUX_CAPABILITY_VERSION;
 
   prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0);
 
@@ -61,10 +62,9 @@ static int set_cap() {
     return -1;
   }
 
-  capdata[CAP_TO_INDEX(CAP_SYS_MODULE)].effective |= CAP_TO_MASK(CAP_SYS_MODULE);
-  capdata[CAP_TO_INDEX(CAP_SYS_MODULE)].permitted |= CAP_TO_MASK(CAP_SYS_MODULE);
+  capdata.effective = capdata.permitted = (1 << CAP_SYS_MODULE);
 
-  if (capset(&capheader, &capdata[0]) < 0) {
+  if (capset(&capheader, &capdata) < 0) {
     printf("Could not set capabilities: %s\n", strerror(errno));
     return -1;
   }
