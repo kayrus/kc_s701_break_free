@@ -1,0 +1,14 @@
+arch = $(shell adb shell getprop ro.product.cpu.abi)
+arch = armeabi-v7a
+# choose platform https://developer.android.com/ndk/guides/stable_apis.html#purpose
+# https://source.android.com/source/build-numbers.html
+platform = android-19
+
+all: build
+
+build:
+	ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=./Android.mk APP_PLATFORM=$(platform) TARGET_ARCH_ABI=$(arch)
+
+clean:
+	rm -rf libs
+	rm -rf obj
